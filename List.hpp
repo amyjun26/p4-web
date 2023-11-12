@@ -46,15 +46,42 @@ public:
   T &back();
 
   // EFFECTS:  inserts datum into the front of the list
-  void push_front(const T &datum);
+  void push_front(const T &datum)
+  {
+    Node *newPtr = new Node;
+    newPtr->datum = datum;
+
+    // connect nodes to each other
+    newPtr->next = first;
+    first->prev = newPtr;
+
+    // make newPtr the new first
+    newPtr->prev = nullptr;
+    // call newPtr first
+    first = newPtr;
+  }
 
   // EFFECTS:  inserts datum into the back of the list
-  void push_back(const T &datum);
+  void push_back(const T &datum)
+  {
+    Node *newPtr = new Node;
+    newPtr->datum = datum;
+
+    // connect nodes to each other
+    newPtr->prev = last;
+    last->next = newPtr;
+
+    // make newPtr the new last
+    newPtr->next = nullptr;
+    last = newPtr;
+  }
 
   // REQUIRES: list is not empty
   // MODIFIES: may invalidate list iterators
   // EFFECTS:  removes the item at the front of the list
-  void pop_front();
+  void pop_front() {
+    
+  }
 
   // REQUIRES: list is not empty
   // MODIFIES: may invalidate list iterators
@@ -75,8 +102,6 @@ public:
 
   ~List() {}
 
-
-
 private:
   // a private type
   struct Node
@@ -88,7 +113,13 @@ private:
 
   // REQUIRES: list is empty
   // EFFECTS:  copies all nodes from other to this
-  void copy_all(const List<T> &other);
+  void copy_all(const List<T> &other)
+  {
+    for (Node *ptr = first; ptr != nullptr; ptr++)
+    {
+      this->push_back(other);
+    }
+  }
 
   Node *first; // points to first Node in list, or nullptr if list is empty
   Node *last;  // points to last Node in list, or nullptr if list is empty
@@ -110,13 +141,11 @@ public:
   public:
     // my constructors implementations
 
-
     // my public operator implementations
     Iterator() {}
 
     Iterator &operator++()
     {
-
     }
     // for dereferencing
     Iterator &operator*()
@@ -125,7 +154,7 @@ public:
     }
     bool &operator==(Iterator rhs)
     {
-    return node_ptr == rhs.node_ptr;
+      return node_ptr == rhs.node_ptr;
     }
     bool &operator!=()
     {
