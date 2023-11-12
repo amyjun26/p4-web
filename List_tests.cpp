@@ -140,8 +140,59 @@ TEST(clear_copyall_copyctor)
     ASSERT_EQUAL(testList3.back(), testList2.back());
 
     // see if changing list 3 will change list 2
+    // testList3.pop_back();
+    //(testList3.size(), testList2.size());
 }
+TEST(iter)
+{
+    // FIRST TEST
+    List<int>::Iterator i;
+    List<int>::Iterator iend;
+    List<int> testList;
 
-// Iterator is a nested type of a list instantiation. Need List<int>::Iterator.
+    testList.push_front(5);
+    testList.push_front(3);
+    testList.push_front(28);
+    testList.push_front(7);
+
+    /*for (List<int>::Iterator i = testList.begin(); i != testList.end(); ++i)
+    {
+        testList.erase(i);
+    }
+    ASSERT_EQUAL(*i, 0); */
+    i = testList.begin();
+    iend = testList.end();
+    ASSERT_TRUE(i != iend);
+
+    // SECOND TEST - edge case - all 0s
+    List<int>::Iterator i2;
+    List<int>::Iterator iend2;
+    List<int> testList2;
+
+    testList2.push_front(0);
+    testList2.push_front(0);
+    testList2.push_front(0);
+    testList2.push_front(0);
+
+    i2 = testList2.begin();
+    iend2 = testList2.end();
+    // checking if the iterators point to the same spot on list
+    ASSERT_TRUE(i2 != iend2);
+
+    // THIRD TEST - edge case - all negatives
+    List<int>::Iterator i3;
+    List<int>::Iterator iend3;
+    List<int> testList3;
+
+    testList3.push_front(-94);
+    testList3.push_front(-29);
+    testList3.push_front(-38);
+    testList3.push_front(-94);
+
+    i3 = testList3.begin();
+    iend3 = testList3.end();
+    // checking if the iterators point to the same spot on list
+    ASSERT_TRUE(i3 != iend3);
+}
 
 TEST_MAIN()
