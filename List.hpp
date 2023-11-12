@@ -18,7 +18,7 @@ public:
   // EFFECTS:  returns true if the list is empty
   bool empty() const
   {
-    return first == nullptr;
+    return numElements == 0;
   }
 
   // EFFECTS: returns the number of elements in this List
@@ -26,14 +26,13 @@ public:
   //          with a private member variable.  That's how std::list does it.
   int size() const
   {
-    int numElements = 0;
-    Node *p = first;
+    /*Node *p = first;
 
     while (p != nullptr)
     {
       numElements += 1;
       p = p->next;
-    }
+    }*/
     return numElements;
   }
 
@@ -58,20 +57,26 @@ public:
     newPtr->datum = datum;
 
     // edge cases
-    if (first == nullptr && last == nullptr)
+    if (empty())
     {
       first = newPtr;
       last = newPtr;
+      newPtr->prev = nullptr;
+      newPtr->next = nullptr;
     }
-    
-    // connect nodes to each other
-    newPtr->next = first;
-    first->prev = newPtr;
 
-    // make newPtr the new first
-    newPtr->prev = nullptr;
-    // call newPtr first
-    first = newPtr;
+    // connect nodes to each other
+    if (!empty())
+    {
+      newPtr->next = first;
+      first->prev = newPtr;
+
+      // make newPtr the new first
+      newPtr->prev = nullptr;
+      // call newPtr first
+      first = newPtr;
+    }
+    numElements++;
   }
 
   // EFFECTS:  inserts datum into the back of the list
@@ -81,18 +86,24 @@ public:
     newPtr->datum = datum;
 
     // edge cases
-    if (first == nullptr && last == nullptr)
+    if (empty())
     {
       first = newPtr;
       last = newPtr;
+      newPtr->next = nullptr;
+      newPtr->prev = nullptr;
     }
     // connect nodes to each other
-    newPtr->prev = last;
-    last->next = newPtr;
+    if (!empty())
+    {
+      newPtr->prev = last;
+      last->next = newPtr;
 
-    // make newPtr the new last
-    newPtr->next = nullptr;
-    last = newPtr;
+      // make newPtr the new last
+      newPtr->next = nullptr;
+      last = newPtr;
+    }
+    numElements++;
   }
 
   // REQUIRES: list is not empty
@@ -100,14 +111,20 @@ public:
   // EFFECTS:  removes the item at the front of the list
   void pop_front()
   {
-    if (first == nullptr)
+    if (empty())
     {
       last = nullptr;
+      first = nullptr;
     }
-    Node *newPtr = first->next;
-    // delete's the NODE that first is pointing to. aka deletes node in memory
-    delete first;
-    first = newPtr;
+    if (!empty())
+    {
+      Node *newPtr = first->next;
+      // delete's the NODE that first is pointing to. aka deletes node in memory
+      delete first;
+      first = newPtr;
+
+      numElements--;
+    }
   }
 
   // REQUIRES: list is not empty
@@ -115,14 +132,20 @@ public:
   // EFFECTS:  removes the item at the back of the list
   void pop_back()
   {
-    if (last == nullptr)
+    if (empty())
     {
       first = nullptr;
+      last = nullptr;
     }
-    Node *newPtr = last->prev;
-    // delete the NODE that last it pointing to
-    delete last;
-    last = newPtr;
+    if (!empty())
+    {
+      Node *newPtr = last->prev;
+      // delete the NODE that last it pointing to
+      delete last;
+      last = newPtr;
+
+      numElements--;
+    }
   }
 
   // MODIFIES: may invalidate list iterators
@@ -153,6 +176,7 @@ public:
     }
     clear();
     copy_all(rhs);
+    this->numElements = rhs.numElements;
     return *this;
   }
 
@@ -183,6 +207,8 @@ private:
 
   Node *first; // points to first Node in list, or nullptr if list is empty
   Node *last;  // points to last Node in list, or nullptr if list is empty
+
+  int numElements = 0;
 
 public:
   ////////////////////////////////////////
@@ -238,7 +264,6 @@ public:
   private:
     Node *node_ptr; // current Iterator position is a List node
     // add any additional necessary member variables here
-    // int size = 0;
 
     // add any friend declarations here
     friend class List;
