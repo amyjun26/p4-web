@@ -26,7 +26,15 @@ public:
   //          with a private member variable.  That's how std::list does it.
   int size() const
   {
-    for (Iterator it = *first; it != *last; it++)
+    int numElements;
+    Node *p = first;
+
+    while (p != nullptr)
+    {
+      numElements++;
+      p = p->next;
+    }
+    return numElements;
   }
 
   // REQUIRES: list is not empty
@@ -62,6 +70,13 @@ public:
   // will work correctly without defining these, you can omit them. A user
   // of the class must be able to create, copy, assign, and destroy Lists
 
+  // my List constructors and overloaded assignment operators
+  List() {}
+
+  ~List() {}
+
+
+
 private:
   // a private type
   struct Node
@@ -93,6 +108,29 @@ public:
     // ++ (prefix), default constructor, == and !=.
 
   public:
+    // my constructors implementations
+
+
+    // my public operator implementations
+    Iterator() {}
+
+    Iterator &operator++()
+    {
+
+    }
+    // for dereferencing
+    Iterator &operator*()
+    {
+      return node_ptr->datum;
+    }
+    bool &operator==(Iterator rhs)
+    {
+    return node_ptr == rhs.node_ptr;
+    }
+    bool &operator!=()
+    {
+    }
+
     // This operator will be used to test your code. Do not modify it.
     // Requires that the current element is dereferenceable.
     Iterator &operator--()
@@ -105,8 +143,10 @@ public:
   private:
     Node *node_ptr; // current Iterator position is a List node
     // add any additional necessary member variables here
+    int size;
 
     // add any friend declarations here
+    friend class List;
 
     // construct an Iterator at a specific position
     Iterator(Node *p);
@@ -117,11 +157,14 @@ public:
   // return an Iterator pointing to the first element
   Iterator begin() const
   {
-    return Iterator(first);
+    return Iterator(*first);
   }
 
   // return an Iterator pointing to "past the end"
-  Iterator end() const;
+  Iterator end() const
+  {
+    return Iterator(*end);
+  }
 
   // REQUIRES: i is a valid, dereferenceable iterator associated with this list
   // MODIFIES: may invalidate other list iterators
