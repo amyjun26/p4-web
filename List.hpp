@@ -26,12 +26,12 @@ public:
   //          with a private member variable.  That's how std::list does it.
   int size() const
   {
-    int numElements;
+    int numElements = 0;
     Node *p = first;
 
     while (p != nullptr)
     {
-      numElements++;
+      numElements += 1;
       p = p->next;
     }
     return numElements;
@@ -41,14 +41,14 @@ public:
   // EFFECTS: Returns the first element in the list by reference
   T &front()
   {
-    return first;
+    return first->datum;
   }
 
   // REQUIRES: list is not empty
   // EFFECTS: Returns the last element in the list by reference
   T &back()
   {
-    return last;
+    return last->datum;
   }
 
   // EFFECTS:  inserts datum into the front of the list
@@ -57,6 +57,13 @@ public:
     Node *newPtr = new Node;
     newPtr->datum = datum;
 
+    // edge cases
+    if (first == nullptr && last == nullptr)
+    {
+      first = newPtr;
+      last = newPtr;
+    }
+    
     // connect nodes to each other
     newPtr->next = first;
     first->prev = newPtr;
@@ -73,6 +80,12 @@ public:
     Node *newPtr = new Node;
     newPtr->datum = datum;
 
+    // edge cases
+    if (first == nullptr && last == nullptr)
+    {
+      first = newPtr;
+      last = newPtr;
+    }
     // connect nodes to each other
     newPtr->prev = last;
     last->next = newPtr;
@@ -89,7 +102,7 @@ public:
   {
     if (first == nullptr)
     {
-      last == nullptr;
+      last = nullptr;
     }
     Node *newPtr = first->next;
     // delete's the NODE that first is pointing to. aka deletes node in memory
@@ -104,7 +117,7 @@ public:
   {
     if (last == nullptr)
     {
-      first == nullptr;
+      first = nullptr;
     }
     Node *newPtr = last->prev;
     // delete the NODE that last it pointing to
@@ -132,7 +145,21 @@ public:
   {
   }
 
-  ~List() {}
+  List &operator=(const List &rhs)
+  {
+    if (this == &rhs)
+    {
+      return *this;
+    }
+    clear();
+    copy_all(rhs);
+    return *this;
+  }
+
+  ~List()
+  {
+    clear();
+  }
 
 private:
   // a private type
@@ -147,12 +174,10 @@ private:
   // EFFECTS:  copies all nodes from other to this
   void copy_all(const List<T> &other)
   {
-    for (Node *newPtr = first; newPtr != nullptr; newPtr = newPtr->next)
+    for (Iterator it = other.begin(); it != other.end(); ++it)
     {
       // will create a pointer
-      push_back(other->datum);
-      push_back(other->previous);
-      push_back(other->next);
+      push_back(*it);
     }
   }
 
@@ -179,26 +204,26 @@ public:
     {
     }
 
-    ~Iterator() {}
-
     // my public operator implementations
     Iterator &operator++()
     {
       node_ptr = node_ptr->next;
-      return node_ptr;
+      // og node_ptr
+      return *this;
     }
     // for dereferencing
-    Iterator &operator*()
+    T &operator*() const
     {
+      assert(node_ptr);
       return node_ptr->datum;
     }
-    bool &operator==(Iterator rhs)
+    bool operator==(Iterator rhs) const
     {
-      return node_ptr == rhs.node_ptr;
+      return this->node_ptr == rhs.node_ptr;
     }
-    bool &operator!=(Iterator rhs)
+    bool operator!=(Iterator rhs) const
     {
-      return node_ptr != rhs.node_ptr;
+      return this->node_ptr != rhs.node_ptr;
     }
 
     // This operator will be used to test your code. Do not modify it.
@@ -213,13 +238,13 @@ public:
   private:
     Node *node_ptr; // current Iterator position is a List node
     // add any additional necessary member variables here
-    int size;
+    // int size = 0;
 
     // add any friend declarations here
     friend class List;
 
     // construct an Iterator at a specific position
-    Iterator(Node *p);
+    Iterator(Node *p) : node_ptr(p) {}
 
   }; // List::Iterator
   ////////////////////////////////////////
@@ -227,13 +252,13 @@ public:
   // return an Iterator pointing to the first element
   Iterator begin() const
   {
-    return Iterator(*first);
+    return Iterator(first);
   }
 
   // return an Iterator pointing to "past the end"
   Iterator end() const
   {
-    return Iterator(*end);
+    return Iterator(last);
   }
 
   // REQUIRES: i is a valid, dereferenceable iterator associated with this list
@@ -241,18 +266,46 @@ public:
   // EFFECTS: Removes a single element from the list container
   void erase(Iterator i)
   {
+    // edge cases
+    if (i == first)
+    {
+      pop_front();
+    }
+    if (i == last)
+    {
+      pop_back();
+    }
     // an iterator points to a node
-    Node *newPtr = i;
-    Node *prevPtr = i->prev;
-    Node *nextPtr = i->next;
-    prevPtr->next = nextPtr;
-    nextPtr->prev = prePtr;
-    delete i;
+    if (i != first && i != last)
+    {
+      i.node_ptr->prev->next = i.node_ptr->next;
+      i.node_ptr->next->prev = i.node_ptr->prev;
+    }
   }
 
   // REQUIRES: i is a valid iterator associated with this list
   // EFFECTS: inserts datum before the element at the specified position.
-  void insert(Iterator i, const T &datum);
+  void insert(Iterator i, const T &datum)
+  {
+    // edge cases - call first, push front
+    if (i == first)
+    {
+      push_front(datum);
+    }
+
+    if (i != first)
+    {
+      // create a new node
+      Node *newPtr = new Node;
+      newPtr->datum = datum;
+
+      newPtr->prev = i.node_ptr->prev;
+      i.node_ptr->prev->next = newPtr;
+
+      newPtr->next = i.node_ptr;
+      i.node_ptr->prev = newPtr;
+    }
+  }
 
 }; // List
 
