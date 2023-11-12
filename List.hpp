@@ -39,11 +39,17 @@ public:
 
   // REQUIRES: list is not empty
   // EFFECTS: Returns the first element in the list by reference
-  T &front();
+  T &front()
+  {
+    return first;
+  }
 
   // REQUIRES: list is not empty
   // EFFECTS: Returns the last element in the list by reference
-  T &back();
+  T &back()
+  {
+    return last;
+  }
 
   // EFFECTS:  inserts datum into the front of the list
   void push_front(const T &datum)
@@ -79,18 +85,42 @@ public:
   // REQUIRES: list is not empty
   // MODIFIES: may invalidate list iterators
   // EFFECTS:  removes the item at the front of the list
-  void pop_front() {
-    
+  void pop_front()
+  {
+    if (first == nullptr)
+    {
+      last == nullptr;
+    }
+    Node *newPtr = first->next;
+    // delete's the NODE that first is pointing to. aka deletes node in memory
+    delete first;
+    first = newPtr;
   }
 
   // REQUIRES: list is not empty
   // MODIFIES: may invalidate list iterators
   // EFFECTS:  removes the item at the back of the list
-  void pop_back();
+  void pop_back()
+  {
+    if (last == nullptr)
+    {
+      first == nullptr;
+    }
+    Node *newPtr = last->prev;
+    // delete the NODE that last it pointing to
+    delete last;
+    last = newPtr;
+  }
 
   // MODIFIES: may invalidate list iterators
   // EFFECTS:  removes all items from the list
-  void clear();
+  void clear()
+  {
+    while (first != nullptr)
+    {
+      pop_front();
+    }
+  }
 
   // You should add in a default constructor, destructor, copy constructor,
   // and overloaded assignment operator, if appropriate. If these operations
@@ -98,7 +128,9 @@ public:
   // of the class must be able to create, copy, assign, and destroy Lists
 
   // my List constructors and overloaded assignment operators
-  List() {}
+  List() : first(nullptr), last(nullptr)
+  {
+  }
 
   ~List() {}
 
@@ -115,9 +147,12 @@ private:
   // EFFECTS:  copies all nodes from other to this
   void copy_all(const List<T> &other)
   {
-    for (Node *ptr = first; ptr != nullptr; ptr++)
+    for (Node *newPtr = first; newPtr != nullptr; newPtr = newPtr->next)
     {
-      this->push_back(other);
+      // will create a pointer
+      push_back(other->datum);
+      push_back(other->previous);
+      push_back(other->next);
     }
   }
 
@@ -140,12 +175,17 @@ public:
 
   public:
     // my constructors implementations
+    Iterator() : node_ptr(nullptr)
+    {
+    }
+
+    ~Iterator() {}
 
     // my public operator implementations
-    Iterator() {}
-
     Iterator &operator++()
     {
+      node_ptr = node_ptr->next;
+      return node_ptr;
     }
     // for dereferencing
     Iterator &operator*()
@@ -156,8 +196,9 @@ public:
     {
       return node_ptr == rhs.node_ptr;
     }
-    bool &operator!=()
+    bool &operator!=(Iterator rhs)
     {
+      return node_ptr != rhs.node_ptr;
     }
 
     // This operator will be used to test your code. Do not modify it.
@@ -198,7 +239,16 @@ public:
   // REQUIRES: i is a valid, dereferenceable iterator associated with this list
   // MODIFIES: may invalidate other list iterators
   // EFFECTS: Removes a single element from the list container
-  void erase(Iterator i);
+  void erase(Iterator i)
+  {
+    // an iterator points to a node
+    Node *newPtr = i;
+    Node *prevPtr = i->prev;
+    Node *nextPtr = i->next;
+    prevPtr->next = nextPtr;
+    nextPtr->prev = prePtr;
+    delete i;
+  }
 
   // REQUIRES: i is a valid iterator associated with this list
   // EFFECTS: inserts datum before the element at the specified position.
